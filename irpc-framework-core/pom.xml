@@ -59,6 +59,12 @@
             <version>${jboss-marshalling-serial.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.idea</groupId>
+            <artifactId>irpc-framework-interface</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
     <build>
