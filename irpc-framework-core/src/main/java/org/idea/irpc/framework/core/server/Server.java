@@ -5,8 +5,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.idea.irpc.framework.core.common.RpcDecoder;
 import org.idea.irpc.framework.core.common.RpcEncoder;
 import org.idea.irpc.framework.core.common.config.ServerConfig;
@@ -32,7 +32,7 @@ public class Server {
         workerGroup = new NioEventLoopGroup();
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup)
-                .channel(ServerSocketChannel.class)
+                .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.TCP_NODELAY, true)//TCP_NODELAY有关 Nagle算法，如果要求高实时性，有数据发送时就马上发送，就将该选项设置为true
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .option(ChannelOption.SO_SNDBUF, 16 * 1024)
