@@ -13,7 +13,7 @@ import org.idea.irpc.framework.core.common.RpcEncoder;
 import org.idea.irpc.framework.core.common.RpcInvocation;
 import org.idea.irpc.framework.core.common.RpcProtocol;
 import org.idea.irpc.framework.core.common.config.ClientConfig;
-import org.idea.irpc.framework.core.proxy.javassist.JavassistProxyFactory;
+import org.idea.irpc.framework.core.proxy.jdk.JDKProxyFactory;
 import org.idea.irpc.framework.interfaces.DataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class Client {
         logger.info("=============服务启动=================");
         this.startClient(channelFuture);
         //这里注入了一个代理工厂，这个代理类会在下文仔细介绍
-        RpcReference rpcReference = new RpcReference(new JavassistProxyFactory());// 或者用 new JDKProxyFactory
+        RpcReference rpcReference = new RpcReference(new JDKProxyFactory());
         return rpcReference;
     }
 

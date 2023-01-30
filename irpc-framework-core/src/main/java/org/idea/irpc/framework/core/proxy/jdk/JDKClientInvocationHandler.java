@@ -1,10 +1,13 @@
 package org.idea.irpc.framework.core.proxy.jdk;
 
+import org.idea.irpc.framework.core.common.PackingRpcInvocation;
 import org.idea.irpc.framework.core.common.RpcInvocation;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.idea.irpc.framework.core.common.cache.CommonClientCache.RESP_MAP;
@@ -27,17 +30,15 @@ public class JDKClientInvocationHandler implements InvocationHandler {
         rpcInvocation.setTargetServiceName(clazz.getName());
         //这里面注入了一个uuid，对每一次请求都做了单独区分
         rpcInvocation.setUuid(UUID.randomUUID().toString());
-        RESP_MAP.put(rpcInvocation.getUuid(), OBJECT);
+        Semaphore semaphore = new Semaphore(1);
+        RESP_MAP.put(rpcInvocation.getUuid(), new PackingRpcInvocation(rpcInvocation, semaphore));
         //这里就是将请求参数放入到发送队列中
         SEND_QUEUE.add(rpcInvocation);
-        long beginTime = System.currentTimeMillis();
-        //客户端请求超时的一个判断依据
-        while (System.currentTimeMillis() - beginTime < 3 * 1000) {
-            Object object = RESP_MAP.get(rpcInvocation.getUuid());
-            if (object instanceof RpcInvocation) {
-                return ((RpcInvocation) object).getResponse();
-            }
+        semaphore.acquire();
+        if (semaphore.tryAcquire(3, TimeUnit.SECONDS)) {
+            return ((RpcInvocation) RESP_MAP.get(rpcInvocation.getUuid())).getResponse();
+        } else {
+            throw new TimeoutException("client wait server's response timeout");
         }
-        throw new TimeoutException("client wait server's response timeout");
     }
 }
